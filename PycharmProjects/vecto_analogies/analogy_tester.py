@@ -12,11 +12,13 @@ class embeddings:
         self.embedding_directory = i
         self.embeddings = vecto2.vecto.embeddings.load_from_dir(self.embedding_directory)
 
-    def get_analogy(self, dataset):
+    def get_analogy(self, dataset, classifier, name):
         self.dataset_path = dataset
-        analogy = LRCos()
+        analogy = LRCos(name_classifier = classifier)
         self.result = analogy.get_result(self.embeddings, dataset)
-        save_json(self.result, "./res.json")
+        print(self.result)
+        save_json(self.result, '/home/mattd/projects/tmp/pycharm_project_18/structured_linear_cbow_500d/'+classifier+
+                  'results/'+ name +'.json')
 
     def get_row(self):
         self.row = {}
@@ -38,7 +40,9 @@ class embeddings:
 
 
     def get_citation(self):
-        citation = self.result[0]['experiment_setup']['embeddings']['vocabulary']['corpus']['bib']
+        citation = ''
+        if 'corpus' in self.result[0]['experiment_setup']['embeddings']['vocabulary']:
+            citation = self.result[0]['experiment_setup']['embeddings']['vocabulary']['corpus']['bib']
         return citation
 
 
@@ -61,20 +65,21 @@ class embeddings:
         return i
 
 
-def main(csv_name, embedding_index):
+def main(classifier, name, embedding_index):
     directories = ["/home/downey/PycharmProjects/vecto_analogies/embeddings/structured_deps_cbow_500d",
-                   "/home/downey/PycharmProjects/vecto_analogies/embeddings/structured_linear_cbow_500d",
+                   "/home/mattd/projects/tmp/pycharm_project_18/embeddings/structured_linear_cbow_500d",
                    "/home/downey/PycharmProjects/vecto_analogies/embeddings/word_deps_cbow_500d",
-                   "/home/downey/PycharmProjects/vecto_analogies/embeddings/word_linear_cbow_500d",
+                   "/home/mattd/projects/tmp/pycharm_project_18/embeddings/structured_linear_glove_500d",
                    "/home/downey/PycharmProjects/vecto_analogies/embeddings/!Demo2/embeddings/bnc/",
                    "/home/downey/PycharmProjects/vecto_analogies/embeddings/lstm/1/word/",
                    "/home/downey/PycharmProjects/vecto_analogies/embeddings/glove.6b/glove.6B/"]
 
     embedding = embeddings(directories[embedding_index])
-    results = embedding.get_analogy("/home/downey/PycharmProjects/vecto_analogies/BATS/BATS_collective/")
+    embedding.get_analogy("/home/mattd/projects/tmp/pycharm_project_18/BATS/BATS_collective/", classifier, name)
     dict = embedding.get_dictionary()
     print(dict)
     df = pandas.DataFrame([dict]).set_index('embedding')
-    df.to_csv('/home/downey/PycharmProjects/vecto_analogies/tables/' + csv_name)
+    df.to_csv('/home/mattd/projects/tmp/pycharm_project_18/structured_linear_cbow_500d/'
+              ''+classifier+'csv/' + name + '.csv')
 
-main('NN.csv', 4)
+main("NN",'NN3', 1)
